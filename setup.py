@@ -16,7 +16,7 @@ config = {
     'author_email': 'tobias@scheck-media.de',
     'version': '0.1',
     'install_requires': ['nose'],
-    'packages': ['RemoteDslrApi', 'gphoto2'],
+    'packages': ['RemoteDslrApi', 'gphoto2', 'flask'],
     'scripts': [],
     'name': 'RemoteDslrApi'
 }
