@@ -1,42 +1,31 @@
 import pkgutil
-from os import getcwd, sep, chdir
-from ConfigParser import ConfigParser
-from flask import Flask
 from RemoteDslrApi import routes
 from flask.blueprints import Blueprint
 from RemoteDslrApi.json_app import json_app
-    
+from RemoteDslrApi.settings import Settings
 
 
 app = json_app(__name__)
 
-def parseConfig():
-    chdir('..')
-    path = "%s%sconfig.ini" % (getcwd(), sep)       
-    parser = ConfigParser()
-    parser.read(path)    
-    config = {}
-    for section in parser.sections():
-        config.update({section : {}})
-        for option in parser.options(section):
-            val = parser.get(section, option)
-            if val != -1:
-                config[section][option] = val 
-    return config
-
-def registerApi():    
+def register_routes():    
+    """
+    autoload API routes
+    """
     package = routes
+    
     for importer, modname, ispkg in pkgutil.iter_modules(package.__path__):
         module = importer.find_module(modname).load_module(modname)
-        for obj in vars(module).values():
-            if isinstance(obj, Blueprint):
-                app.register_blueprint(obj, url_prefix='/api')            
+        if ispkg == False:
+            for obj in vars(module).values():
+                if isinstance(obj, Blueprint):
+                    app.register_blueprint(obj, url_prefix='/api')            
         
     
 
 if __name__ == "__main__":
-    registerApi()
-    config = parseConfig()        
+    register_routes()
+    config = Settings().get_config()        
     address = config["server"]["address"]
-    port = int(config["server"]["port"])    
-    app.run(address, port, True, use_reloader=False)    
+    port = int(config["server"]["port"])
+    debug = config["server"]["port"] in ['True', 'true']    
+    app.run(address, port, debug, use_reloader=False)    
