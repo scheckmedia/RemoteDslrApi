@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, request, current_app
 import json
 from RemoteDslrApi.error import RemoteDslrApiError
 
@@ -10,24 +10,24 @@ from RemoteDslrApi.error import RemoteDslrApiError
 @apiDescription Returns a list of the current configuration
 
 @apiSuccessExample Success-Response:
-    HTTP/1.1 201 OK    
+    HTTP/1.1 200 OK    
 """
 list_config_page = Blueprint('list_config', __name__)
 @list_config_page.route('/config/list', methods=['GET'])
 def list_config():     
     camera = current_app.get_camera()
     print camera.has_camera()
-    return jsonify(camera.get_config())
+    return current_app.success_response(camera.get_config()), 200
 
 """
-@api {get} /api/config Value by key
+@api {post} /api/config Value by key
 @apiName GetConfigByKey
 @apiGroup Config
 @apiDescription Returns a value of a key or a list of values for a list of keys
 
-@apiParam {Array} value    settings key(s) to get value
+@apiParam {Object} value    settings key(s) to get value
 @apiSuccessExample Success-Response:
-    HTTP/1.1 201 OK
+    HTTP/1.1 200 OK
     
 @apiParamExample {json} Request-Example:
 {
@@ -41,11 +41,12 @@ or
 }       
 """
 config_by_value = Blueprint('config_by_value', __name__)
-@config_by_value.route('/config', methods=['GET'])
+@config_by_value.route('/config', methods=['POST'])
 def get_config_by_key():
     camera = current_app.get_camera()
-    data = json.loads(request.data)    
-    return jsonify(camera.get_config())
+    data = json.loads(request.data)  
+    value = __validate_value(data)  
+    return current_app.success_response(camera.get_config_value(value)), 200
 
 
 
@@ -55,7 +56,7 @@ def get_config_by_key():
 @apiGroup Config
 @apiDescription Updates Aperture value for a connected Camera
 
-@apiParam {String} value    ISO value
+@apiParam {Object} value    ISO value
 @apiSuccessExample Success-Response:
     HTTP/1.1 201 OK
     
@@ -69,14 +70,9 @@ config_aperture_page = Blueprint('config_aperture', __name__)
 def aperture():    
     camera = current_app.get_camera()
     data = json.loads(request.data)  
-    value = __validate_value(data)
-    
-    camera.set_aperture(value)  
-    
-    
-    return jsonify({"state" : "ok"}), 201
-
-
+    value = __validate_value(data)    
+    camera.set_config_value("f-number", value)
+    return current_app.success_response({}), 201
 
 """
 @api {put} /api/config/iso ISO
@@ -84,7 +80,7 @@ def aperture():
 @apiGroup Config
 @apiDescription Updates ISO value for a connected Camera
 
-@apiParam {String} value    ISO value
+@apiParam {Object} value    ISO value
 @apiSuccessExample Success-Response:
     HTTP/1.1 201 OK
 
@@ -98,10 +94,9 @@ config_iso_page = Blueprint('config_iso', __name__)
 def iso():    
     camera = current_app.get_camera()
     data = json.loads(request.data)  
-    value = __validate_value(data)
-    
-    camera.set_iso(value)  
-    return jsonify({"state" : "ok"}), 201
+    value = __validate_value(data)    
+    camera.set_config_value("iso", value)
+    return current_app.success_response({}), 201
 
 
 """
@@ -110,7 +105,7 @@ def iso():
 @apiGroup Config
 @apiDescription Updates Shutter speed value for a connected Camera 
 
-@apiParam {String} value    shutter speed value
+@apiParam {Object} value    shutter speed value
 @apiSuccessExample Success-Response:
     HTTP/1.1 201 OK
 
@@ -126,9 +121,36 @@ def shutter_speed():
     data = json.loads(request.data)  
     value = __validate_value(data)
     
-    camera.set_shutter_speed(value)  
+    camera.set_config_value("shutterspeed2", value)  
     
-    return jsonify({"state" : "ok"}), 201
+    return current_app.success_response({}), 201
+
+"""
+@api {put} /api/config/:key Custom Value
+@apiName SetKeyValue
+@apiGroup Config
+@apiDescription Updates Camera configuration with a key value pair from listconfig settings
+
+@apiParam {String} key      configuration key
+@apiParam {Object} value    value for key
+@apiSuccessExample Success-Response:
+    HTTP/1.1 201 OK
+
+@apiParamExample {json} Request-Example:
+{
+    "value" : "1\/128"
+}
+"""
+config_custom_key_value = Blueprint('config_custom_key_value', __name__)
+@config_shutter_speed_page.route('/config/<key>', methods=['PUT'])
+def key_value(key):    
+    camera = current_app.get_camera()
+    data = json.loads(request.data)  
+    value = __validate_value(data)
+    
+    camera.set_config_value(key, value)  
+    
+    return current_app.success_response({}), 201
 
 
 def __validate_value(data):

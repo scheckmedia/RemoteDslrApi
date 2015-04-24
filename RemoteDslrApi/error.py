@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import current_app
 from werkzeug.exceptions import HTTPException
 from gphoto2.gphoto2_result import GPhoto2Error
 ERROR_MAP = {
@@ -23,27 +23,28 @@ class RemoteDslrApiError(Exception):
         
     @staticmethod
     def handle(ex):
-        response = {}        
+        response = {}
+        code = 500        
         if(isinstance(ex, GPhoto2Error)) :
             key = str(ex.code)
-            response["message"] = ex.string 
-            
+            response["message"] = ex.string             
             if(ERROR_MAP.has_key(key)):
                 o = ERROR_MAP[key]
-                response["status_code"] = o["http_code"]
-                response["description"] = o["description"]            
+                code = o["http_code"]
+                response["description"] = o["description"]
+                
+            response["status_code"] = code            
         else:            
             response["message"] = ex.message
             
             if(hasattr(ex, "description")):            
                 response["description"] = ex.description
-
-            code = 500
+            
             if isinstance(ex, HTTPException) or isinstance(ex, RemoteDslrApiError):
                 code = ex.code
                                                 
             response["status_code"] = code
             
-        response["state"] = "fail"
-        return jsonify(response), response["status_code"]
+        
+        return current_app.fail_response(response), response["status_code"]
         

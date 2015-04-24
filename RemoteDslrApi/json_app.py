@@ -1,4 +1,5 @@
-from flask import Flask    
+import atexit
+from flask import Flask, jsonify   
 from werkzeug.exceptions import default_exceptions
 from RemoteDslrApi.camera_controller import CameraController
 from RemoteDslrApi.error import RemoteDslrApiError
@@ -12,6 +13,20 @@ class Server(Flask):
 
     def get_camera(self):
         return self.__camera
+    
+    def success_response(self, param):
+        if type(param) is dict:
+            param["state"] = "ok"
+            return jsonify( param )
+    
+    def fail_response(self, param):
+        if type(param) is dict:
+            param["state"] = "fail"
+            return jsonify( param )
+    
+    @atexit.register
+    def cleanup(self):
+        print "cleanUP!"
 
 def json_app(import_name, **kwargs):    
     app = Server(import_name, **kwargs)

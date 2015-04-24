@@ -22,10 +22,10 @@ def register_routes():
         
     
 
-if __name__ == "__main__":
+if __name__ == "__main__":        
     register_routes()
     config = Settings().get_config()        
     address = config["server"]["address"]
     port = int(config["server"]["port"])
     debug = config["server"]["port"] in ['True', 'true']    
-    app.run(address, port, debug, use_reloader=False)    
+    app.run(address, port, debug, use_reloader=False, threaded=True)     
