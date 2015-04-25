@@ -26,8 +26,8 @@ class Camera:
             self.__preview_running = False
             self.__cmd_receive = None
             self.__cmd_done = None                  
-            self.set_capture_target(1);    
-                                    
+            self.set_capture_target(1);                
+        
         except Exception as ex:
             print ex
             self.__has_camera = False
