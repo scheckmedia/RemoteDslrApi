@@ -4,61 +4,94 @@ from sys import platform
 from os import system
 from RemoteDslrApi.error import RemoteDslrApiError
 from RemoteDslrApi.image import Image
-from _ast import Load
-import base64
+from time import sleep
 
-class CameraController:
+class Camera:
+    '''    
+    Responsible for operations with a Camera    
+    '''
     def __init__(self):
-        try:                        
+        try:       
+            # kill ptpcamera on osx which blocks a communication with the camera                 
             if platform == "darwin":
                 print platform
                 system('killall PTPCamera 2> /dev/null')
-                
-            self.__last_error = None
+                        
+            self.__last_error = None            
             self.__context = gp.Context()
             self.__camera = gp.Camera()
             self.__camera.init(self.__context)
             self.__has_camera = True            
             self.__is_busy = False     
-            self.__preview_running = False       
-            self.set_capture_target(1);
+            self.__preview_running = False
+            self.__cmd_receive = None
+            self.__cmd_done = None                  
+            self.set_capture_target(1);    
+                                    
         except Exception as ex:
             print ex
             self.__has_camera = False
             self.__last_error = ex                   
-        
-    def has_camera(self):
+    
+    @property    
+    def has_camera(self):        
+        '''
+        determine a camera is connected and valid
+        '''
         return self.__has_camera 
     
     @property
-    def preview_running(self):
+    def is_busy(self):
+        return self.__is_busy
+    
+    @property
+    def preview_running(self):        
+        '''
+        is camera live view active
+        '''
         return self.__preview_running
     
+    def on_command_receive(self, callback):
+        self.__cmd_receive = callback
+        
+    def on_command_done(self, callback):
+        self.__cmd_done = callback
+    
     def capture(self, return_image=True):
+        '''
+        takes a picture and returns this, if needed
+        
+        Parameters
+        ----------
+        return_image : bool
+            if true image object will be returned (see :class:`Image`)        
+                
+        '''
         if(self.__has_camera == False):
             raise self.__last_error
-                
+                                
         self.__check_busy()
         self.__is_busy = True
         
-        try:            
+        if(self.__preview_running):
+            sleep(1)
+
+        try:                                
             path = self.__camera.capture(gp.GP_CAPTURE_IMAGE, self.__context)
             if(return_image):   
                 camera_file = self.__camera.file_get(path.folder, path.name, gp.GP_FILE_TYPE_NORMAL, self.__context)        
                 data = camera_file.get_data_and_size()
-                img = Image(data)            
-                return img            
+                return Image(data)                                    
         except Exception as ex:            
             raise ex
         finally:
-            self.__is_busy = False        
+            self.__is_busy = False                  
     
     def start_preview(self):
+        
         if(self.__has_camera == False):
             raise self.__last_error
-                        
-        self.__check_busy()
-        self.__is_busy = True
+                                
         self.__preview_running = True
         try:  
             pass           
@@ -78,6 +111,37 @@ class CameraController:
             raise ex
         finally:
             self.__is_busy = False 
+    
+    def read_liveview_frame(self):
+        if(self.__has_camera == False):
+            raise self.__last_error            
+        
+        if(self.__is_busy):
+            self.__camera.exit(self.__context)
+            return False
+        
+        try:            
+            preview_file = gp.CameraFile()            
+            self.__camera.capture_preview(preview_file, self.__context)
+            preview =  preview_file.get_data_and_size()
+            return preview
+        except Exception as ex:            
+            raise ex
+    
+    def manual_focus(self, step):
+        if(self.__has_camera == False):
+            raise self.__last_error
+        
+        #=======================================================================
+        # if(self.__preview_running == False):
+        #     raise Exception("manual focus works only in live view mode")
+        # 
+        #=======================================================================
+        try:
+            self.__set_widget_value("manualfocusdrive", float(step), False)
+        except Exception as ex:            
+            raise ex 
+    
     
     def set_capture_target(self, index):
         try:
@@ -134,6 +198,7 @@ class CameraController:
     def set_config_value(self, key, value):
         self.__set_widget_value(str(key), str(value))
     
+    
     def __read_widget(self, widget, settings = {}):                    
         items = widget.count_children()
         if items > 0:
@@ -172,14 +237,17 @@ class CameraController:
         finally:
             self.__is_busy = False
             
-    def __set_widget_value(self, key, value):
+    def __set_widget_value(self, key, value, cast_as_string=True):
         self.__check_busy()
         self.__is_busy = True
         
         try:            
             root = self.__camera.get_config(self.__context)
             child = root.get_child_by_name(key)
-            child.set_value(str(value))
+            if(cast_as_string):
+                value = str(value)
+                
+            child.set_value(value)
             self.__camera.set_config(root, self.__context)
         except Exception as ex:            
             raise ex
@@ -188,19 +256,15 @@ class CameraController:
     
     def __check_busy(self):
         if(self.__is_busy):
-            raise RemoteDslrApiError("Camera is busy", 503)         
+            raise RemoteDslrApiError("Camera is busy", 503)                    
     
-    def read_liveview_frame(self):
-        if(self.__has_camera == False):
-            raise self.__last_error            
-        
-        try:            
-            preview_file = gp.CameraFile()            
-            self.__camera.capture_preview(preview_file, self.__context)
-            preview =  preview_file.get_data_and_size()
-            return preview
-        except Exception as ex:            
-            raise ex
+    def __notify_command_receive(self):
+        if(hasattr(self.__cmd_receive, "__call__")):
+            self.__cmd_receive()
+            
+    def __notify_command_done(self):
+        if(hasattr(self.__cmd_done, "__call__")):
+            self.__cmd_done()
     
     def __exit__(self):
         print "exit"
