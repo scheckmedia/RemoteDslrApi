@@ -11,10 +11,10 @@ class Camera:
     Responsible for operations with a Camera    
     '''
     def __init__(self):
-        try:       
+        try:
+            print "initialize camera..."       
             # kill ptpcamera on osx which blocks a communication with the camera                 
             if platform == "darwin":
-                print platform
                 system('killall PTPCamera 2> /dev/null')
                         
             self.__last_error = None            
@@ -23,9 +23,7 @@ class Camera:
             self.__camera.init(self.__context)
             self.__has_camera = True            
             self.__is_busy = False     
-            self.__preview_running = False
-            self.__cmd_receive = None
-            self.__cmd_done = None                  
+            self.__preview_running = False                            
             self.set_capture_target(1);                
         
         except Exception as ex:
@@ -49,13 +47,7 @@ class Camera:
         '''
         is camera live view active
         '''
-        return self.__preview_running
-    
-    def on_command_receive(self, callback):
-        self.__cmd_receive = callback
-        
-    def on_command_done(self, callback):
-        self.__cmd_done = callback
+        return self.__preview_running    
     
     def capture(self, return_image=True):
         '''
@@ -74,18 +66,25 @@ class Camera:
         self.__is_busy = True
         
         if(self.__preview_running):
-            sleep(1)
+            sleep(0.1)            
+            self.__set_widget_value("viewfinder", 0, False)
+            sleep(0.1)
 
         try:                                
             path = self.__camera.capture(gp.GP_CAPTURE_IMAGE, self.__context)
+            data = None
+            
             if(return_image):   
                 camera_file = self.__camera.file_get(path.folder, path.name, gp.GP_FILE_TYPE_NORMAL, self.__context)        
-                data = camera_file.get_data_and_size()
-                return Image(data)                                    
+                data = camera_file.get_data_and_size()                
+            
+            return Image(data, path)  
         except Exception as ex:            
             raise ex
         finally:
-            self.__is_busy = False                  
+            self.__is_busy = False    
+            if(self.__preview_running):
+                self.start_preview()              
     
     def start_preview(self):
         
@@ -116,8 +115,7 @@ class Camera:
         if(self.__has_camera == False):
             raise self.__last_error            
         
-        if(self.__is_busy):
-            self.__camera.exit(self.__context)
+        if(self.__is_busy):            
             return False
         
         try:            
@@ -132,23 +130,33 @@ class Camera:
         if(self.__has_camera == False):
             raise self.__last_error
         
-        #=======================================================================
-        # if(self.__preview_running == False):
-        #     raise Exception("manual focus works only in live view mode")
-        # 
-        #=======================================================================
+        self.__check_busy()
+        self.__is_busy = True
+        
+        if(self.__preview_running == False):
+            raise Exception("manual focus works only in live view mode")
+        else :            
+            sleep(0.1)
+            
         try:
             self.__set_widget_value("manualfocusdrive", float(step), False)
+        except gp.GPhoto2Error as ex:
+            if(ex.code == -113):
+                raise RemoteDslrApiError('Zoom reached max/min value', 405)
+            else: raise ex
         except Exception as ex:            
             raise ex 
+        finally:
+            self.__is_busy = False
     
     
     def set_capture_target(self, index):
         try:
             widget = self.__get_widget_value_by_key("capturetarget")
             choices = widget["choices"]
-            print "choice: %s" % choices[index]
-            self.__set_widget_value("capturetarget", choices[index]);
+            if(len(choices) > index):
+                print "choice: %s" % choices[index]
+                self.__set_widget_value("capturetarget", choices[index]);            
         except Exception as ex:            
             raise ex
         finally:
@@ -184,19 +192,37 @@ class Camera:
         return settings
     
     def get_config_value(self, key):
-        print type(key)
+        if(self.__has_camera == False):
+            raise self.__last_error
+        
         if (type(key) is list):
             settings = {}
             for k in key:
                 settings[k] = self.__get_widget_value_by_key(str(k))
             return settings
-        elif(type(key) is str): 
-            return self.__get_widget_value_by_key(key)
+        elif(type(key) is unicode or type(key) is str): 
+            return self.__get_widget_value_by_key(str(key))
         else:
             raise RemoteDslrApiError("invalid key type", 400)
         
     def set_config_value(self, key, value):
-        self.__set_widget_value(str(key), str(value))
+        if(self.__has_camera == False):
+            raise self.__last_error
+        
+        self.__check_busy()
+        self.__is_busy = True
+        
+        if(self.__preview_running):        
+            sleep(0.2)
+            
+        try:
+            self.__set_widget_value(str(key), str(value))
+        except Exception as ex:            
+            raise ex 
+        finally:
+            self.__is_busy = False
+        
+        
     
     
     def __read_widget(self, widget, settings = {}):                    
@@ -215,13 +241,18 @@ class Camera:
         settings["name"] = widget.get_name()
         settings["value"] = widget.get_value()
         settings["type"] = widget.get_type()                
+        try:            
+            # methods throws an error if no widget value is available, thats not that cool
+            items = widget.count_choices()
+            if items > 0:
+                choices = []
+                for index in range(0, items):                
+                    choices.append(widget.get_choice(index))
+                settings["choices"] = choices
+        except Exception as ex:
+            if ( ex.code != -2 ):
+                raise ex
             
-        items = gp.gp_widget_count_choices(widget)
-        if items > 0:
-            choices = []
-            for index in range(0, items):                
-                choices.append(widget.get_choice(index))
-            settings["choices"] = choices
     def __get_widget_value_by_key(self, key):
         self.__check_busy()
         self.__is_busy = True
@@ -237,10 +268,7 @@ class Camera:
         finally:
             self.__is_busy = False
             
-    def __set_widget_value(self, key, value, cast_as_string=True):
-        self.__check_busy()
-        self.__is_busy = True
-        
+    def __set_widget_value(self, key, value, cast_as_string=True):                
         try:            
             root = self.__camera.get_config(self.__context)
             child = root.get_child_by_name(key)
@@ -250,9 +278,7 @@ class Camera:
             child.set_value(value)
             self.__camera.set_config(root, self.__context)
         except Exception as ex:            
-            raise ex
-        finally:
-            self.__is_busy = False
+            raise ex        
     
     def __check_busy(self):
         if(self.__is_busy):

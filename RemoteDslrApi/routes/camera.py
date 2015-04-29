@@ -5,34 +5,29 @@ import time
 from time import sleep
 
 """
-@api {get} /api/camera/capture Capture
+@api {post} /api/camera/capture Capture
 @apiName GetCapture
 @apiGroup Camera
-@apiDescription Takes a picture and returns an image (optional)
-
-@apiSuccessExample Success-Response:
-    HTTP/1.1 200 OK    
-"""
-
-"""
-@api {post} /api/camera/capture Capture
-@apiName PostCapture
-@apiGroup Camera
-@apiDescription Takes a picture without returning the image
+@apiDescription Takes a picture and optional returns an image as base64 encoded string(optional)
 
 @apiSuccessExample Success-Response:
     HTTP/1.1 200 OK    
 """
 camera_capture = Blueprint('capture', __name__)
-@camera_capture.route('/camera/capture', methods=['GET','POST'])
+@camera_capture.route('/camera/capture', methods=['POST'])
 def capture():     
     camera = current_app.get_camera()
-    if(request.method == "GET"):
-        image = camera.capture()        
-        return current_app.success_response({"image" : image.base64}), 200
-    else:
-        camera.capture(False)
-        return current_app.success_response({}), 200
+    data = json.loads(request.data)  
+    with_image = False
+    
+    if('with_image' in data):
+        with_image = data["with_image"]
+    
+    image = camera.capture(with_image)
+    if(with_image):                
+        return current_app.success_response({"base64_jpeg" : image.base64, "path" : image.path}), 200
+    
+    return current_app.success_response({"path" : image.path}), 200
     
 
 """
@@ -53,7 +48,6 @@ def start_live_view():
         camera.start_preview()  
         while camera.preview_running:
             frame = camera.read_liveview_frame()
-            print "frame %r -- is-busy: %r" % (bool(frame), camera.is_busy)
                         
             # another command will be executed
             # so we can wait a little bit more
@@ -70,7 +64,7 @@ def start_live_view():
 
 
 """
-@api {get} /api/camera/liveview/stop Live View stop
+@api {put} /api/camera/liveview/stop Live View stop
 @apiName GetLiveviewStop
 @apiGroup Camera
 @apiDescription Stops mjpeg stream and camera Live View
@@ -80,7 +74,7 @@ def start_live_view():
 """
 
 camera_stop_live_view = Blueprint('camera_live_view_stop', __name__)
-@camera_stop_live_view.route('/camera/liveview/stop', methods=['GET'])
+@camera_stop_live_view.route('/camera/liveview/stop', methods=['PUT'])
 def stop_live_view():
     camera = current_app.get_camera()
     camera.stop_preview()    

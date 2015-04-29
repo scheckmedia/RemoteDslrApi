@@ -16,8 +16,9 @@ config = {
     'download_url': 'Where to download it.',
     'author_email': 'tobias@scheck-media.de',
     'version': '0.1',
-    'install_requires': ['nose', 'gphoto2', 'flask', 'Pillow', 'rawpy', 'imageio'],
+    'install_requires': ['nose', 'gphoto2', 'flask', 'rawpy', 'imageio', 'zeroconf'],
     'packages': ['RemoteDslrApi'],
+    'tests_require' : ['Mock'],
     'scripts': [],
     'name': 'RemoteDslrApi'
 }

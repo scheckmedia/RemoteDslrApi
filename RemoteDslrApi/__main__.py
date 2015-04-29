@@ -3,8 +3,8 @@ from RemoteDslrApi import routes
 from flask.blueprints import Blueprint
 from RemoteDslrApi.server import json_app
 from RemoteDslrApi.settings import Settings
-
-
+from RemoteDslrApi.auto_announce import AutoAnnounce
+ 
 app = json_app(__name__)
 
 def register_routes():    
@@ -27,4 +27,8 @@ if __name__ == "__main__":
     address = config["server"]["address"]
     port = int(config["server"]["port"])
     debug = config["server"]["port"] in ['True', 'true']    
+    auto_announce = config["general"]["auto_announce"] in ['True', 'true']
+    if(auto_announce):
+        announce = AutoAnnounce(port)
+        
     app.run(address, port, debug, use_reloader=False, threaded=True)     

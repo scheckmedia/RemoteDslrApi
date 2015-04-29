@@ -16,7 +16,6 @@ list_config_page = Blueprint('list_config', __name__)
 @list_config_page.route('/config/list', methods=['GET'])
 def list_config():     
     camera = current_app.get_camera()
-    print camera.has_camera()
     return current_app.success_response(camera.get_config()), 200
 
 """
