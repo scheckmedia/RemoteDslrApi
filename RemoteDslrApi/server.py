@@ -5,6 +5,7 @@ from RemoteDslrApi.error import RemoteDslrApiError
 
 __all__ = ['json_app']
 
+
 class Server(Flask):
     def __init__(self, import_name):        
         Flask.__init__(self, import_name)
@@ -16,12 +17,12 @@ class Server(Flask):
     def success_response(self, param):
         if type(param) is dict:
             param["state"] = "ok"
-            return jsonify( param )
+            return jsonify(param)
     
     def fail_response(self, param):
         if type(param) is dict:
             param["state"] = "fail"
-            return jsonify( param )
+            return jsonify(param)
     
     
 def json_app(import_name, **kwargs):    

@@ -7,7 +7,7 @@ class AutoAnnounce(object):
     
     def __init__(self, port, run=True):
         try:
-            self.__running =  True
+            self.__running = True
             self.zeroconf = Zeroconf()
             ip, hostname = self.get_local_ip()                        
             desc = {'version': RemoteDslrApi.__version__, 'api_url': 'http://' + ip + ':' + str(port) + '/api/', 'url': 'http://' + ip + ':' + str(port)}
@@ -16,10 +16,10 @@ class AutoAnnounce(object):
                        socket.inet_aton(ip), port, 0, 0,
                        desc, hostname)
             
-            logging.basicConfig(level=logging.DEBUG)
-            logging.getLogger('zeroconf').setLevel(logging.DEBUG)            
+            # logging.basicConfig(level=logging.DEBUG)
+            # logging.getLogger('zeroconf').setLevel(logging.DEBUG)
                             
-            if(run):
+            if run:
                 self.run()
         except Exception as ex:
             print ex 
@@ -31,8 +31,9 @@ class AutoAnnounce(object):
         self.zeroconf.unregister_all_services()
         self.zeroconf.close()
         self.__running = False
-    
-    def get_local_ip(self):
+
+    @staticmethod
+    def get_local_ip():
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('8.8.8.8', 53))
         ip = s.getsockname()[0]

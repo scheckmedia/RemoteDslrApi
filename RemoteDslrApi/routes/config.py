@@ -141,7 +141,7 @@ def shutter_speed():
 }
 """
 config_custom_key_value = Blueprint('config_custom_key_value', __name__)
-@config_shutter_speed_page.route('/config/<key>', methods=['PUT'])
+@config_custom_key_value.route('/config/<key>', methods=['PUT'])
 def key_value(key):    
     camera = current_app.get_camera()
     data = json.loads(request.data)  

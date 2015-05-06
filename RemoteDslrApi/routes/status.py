@@ -16,7 +16,7 @@ status_page = Blueprint('status', __name__)
 @status_page.route('/status', methods=['GET'])
 def get_status():
     camera = current_app.get_camera()
-    message = { "camera" : camera.has_camera()}
+    message = { "camera" : camera.has_camera}
     if(message["camera"] == False) :
         message["error"] = camera.get_last_error()
     return current_app.success_response(message)
@@ -35,7 +35,7 @@ def get_status():
             "Hersteller: Nikon Corporation",
             "Modell: D90",
             " Version: V1.00",
-            " Seriennummer: 6487946",
+            " Seriennummer: xxxxxx",
             ...
         ]
     }

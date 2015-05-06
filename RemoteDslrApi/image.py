@@ -8,10 +8,10 @@ from flask.json import JSONEncoder
 
 
 class Image(JSONEncoder):
-    def __init__(self, data = None, path = ""):
-        if(data != None):                
+    def __init__(self, data=None, path=""):
+        if data is None:
             match = re.search('jpeg|jpg', path.name, re.IGNORECASE)                
-            if(match):
+            if match:
                 self.__data = data
             else:
                 self.__data = self.__decode_raw(data)            

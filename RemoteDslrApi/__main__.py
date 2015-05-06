@@ -1,4 +1,5 @@
 import pkgutil
+from os import path
 from RemoteDslrApi import routes
 from flask.blueprints import Blueprint
 from RemoteDslrApi.server import json_app
@@ -23,12 +24,27 @@ def register_routes():
 
 if __name__ == "__main__":         
     register_routes()
-    config = Settings().get_config()        
+    config = Settings().get_config()
     address = config["server"]["address"]
     port = int(config["server"]["port"])
-    debug = config["server"]["port"] in ['True', 'true']    
+    debug = config["server"]["port"] in ['True', 'true']  
+    use_ssl = config["server"]["ssl"] in ['True', 'true']  
     auto_announce = config["general"]["auto_announce"] in ['True', 'true']
-    if(auto_announce):
+    if auto_announce:
         announce = AutoAnnounce(port)
-        
-    app.run(address, port, debug, use_reloader=False, threaded=True)     
+    
+    options = {
+               'debug': debug,
+               'use_reloader': False,
+               'threaded': True,
+               
+               }
+    
+    if use_ssl:
+        abs_path = path.dirname(path.abspath(__file__)) + "/../"
+        cert_file = abs_path + config["server"]["ssl_crt"]
+        key_file = abs_path + config["server"]["ssl_key"]        
+        ssl_context = (cert_file, key_file)
+        options['ssl_context'] = ssl_context
+                    
+    app.run(address, port, **options)     

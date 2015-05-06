@@ -1,6 +1,7 @@
 from flask import current_app
 from werkzeug.exceptions import HTTPException
 from gphoto2.gphoto2_result import GPhoto2Error
+
 ERROR_MAP = {
     "-102" : { "http_code" : 404, "description" : "Data is corrupt. This error is reported by camera drivers if corrupted data has been received that can not be automatically handled. Normally, drivers will do everything possible to automatically recover from this error."},
     "-103" : { "http_code" : 404, "description" : "An operation failed because a file existed. This error is reported for example when the user tries to create a file that already exists."},
@@ -16,6 +17,7 @@ ERROR_MAP = {
     "-115" : { "http_code" : 404, "description" : "There was not enough free space when uploading a file."},    
 }
 
+
 class RemoteDslrApiError(Exception):
     def __init__(self, message, code):        
         self.message = message
@@ -25,10 +27,10 @@ class RemoteDslrApiError(Exception):
     def handle(ex):
         response = {}
         code = 500        
-        if(isinstance(ex, GPhoto2Error)) :
+        if isinstance(ex, GPhoto2Error):
             key = str(ex.code)
             response["message"] = ex.string             
-            if(ERROR_MAP.has_key(key)):
+            if ERROR_MAP.has_key(key):
                 o = ERROR_MAP[key]
                 code = o["http_code"]
                 response["description"] = o["description"]
@@ -37,14 +39,12 @@ class RemoteDslrApiError(Exception):
         else:            
             response["message"] = ex.message
             
-            if(hasattr(ex, "description")):            
+            if hasattr(ex, "description"):
                 response["description"] = ex.description
             
             if isinstance(ex, HTTPException) or isinstance(ex, RemoteDslrApiError):
                 code = ex.code
                                                 
             response["status_code"] = code
-            
-        
+
         return current_app.fail_response(response), response["status_code"]
-        

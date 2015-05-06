@@ -1,13 +1,17 @@
-from os import getcwd, sep, chdir
+from os import getcwd, sep, chdir, path
 from ConfigParser import ConfigParser
+
 
 class Settings:
     def __init__(self):
         self.__config = {
-            "server" : {
-                "Address" : "127.0.0.1",
-                "Port" : 6666,
-                "Debug" : False                                
+            "server": {
+                "address": "127.0.0.1",
+                "port": 6666,
+                "debug": False,
+                "ssl": False,
+                "ssl_key": "ssl/server.key",
+                "ssl_crt": "ssl/server.crt"
             }         
         }
                 
@@ -20,13 +24,13 @@ class Settings:
         self.__config.update(values)
     
     def __parse_config(self):
-        chdir('..')
-        path = "%s%sconfig.ini" % (getcwd(), sep)       
+        abs_path = path.dirname(path.abspath(__file__)) + "/../"
+        config_file = "%sconfig.ini" % abs_path        
         parser = ConfigParser()
-        parser.read(path)    
+        parser.read(config_file)
         config = {}
         for section in parser.sections():
-            config.update({section : {}})
+            config.update({section: {}})
             for option in parser.options(section):
                 val = parser.get(section, option)
                 if val != -1:
