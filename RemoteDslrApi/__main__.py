@@ -34,11 +34,10 @@ if __name__ == "__main__":
         announce = AutoAnnounce(port)
     
     options = {
-               'debug': debug,
-               'use_reloader': False,
-               'threaded': True,
-               
-               }
+        'debug': debug,
+        'use_reloader': False,
+        'threaded': True
+    }
     
     if use_ssl:
         abs_path = path.dirname(path.abspath(__file__)) + "/../"

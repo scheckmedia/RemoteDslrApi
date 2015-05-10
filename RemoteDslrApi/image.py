@@ -31,7 +31,7 @@ class Image(JSONEncoder):
         try:
             io = StringIO(data)
             rawfile.write(io.getvalue())
-            rawfile.seek(0)            
+            rawfile.seek(0)                        
             raw = rawpy.imread(rawfile.name)
             rgb = raw.postprocess()
             return imageio.imwrite(imageio.RETURN_BYTES, rgb, 'jpeg')
