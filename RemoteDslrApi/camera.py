@@ -4,9 +4,9 @@ from sys import platform
 from os import system
 from time import sleep
 from RemoteDslrApi.error import RemoteDslrApiError
-from RemoteDslrApi.image import Image
+from RemoteDslrApi.image import Image, PreviewSize, ImagePath
 from base64 import b64encode
-from CodeWarrior.Standard_Suite import files
+import time
 
 class Camera:
     '''    
@@ -266,13 +266,21 @@ class Camera:
         if type(files) is list:
             for f in files:
                 if type(f) is dict and f.has_key('file') and f.has_key('path'):
-                    f["preview"] = self.__read_file_preview(f['path'], f['file'])
-                    previews.append(f)
+                    image = self.__read_file_preview(f['path'], f['file'])
+                    d = image.copy()
+                    d.update(f)
+                    previews.append(d)
         return previews
     
     def __read_file_preview(self, folder, filename):
-        preview = self.__camera.file_get(str(folder), str(filename), gp.GP_FILE_TYPE_PREVIEW, self.__context)
-        return b64encode(preview.get_data_and_size())        
+        start = time.time()
+        meta = self.__camera.file_get(str(folder), str(filename), gp.GP_FILE_TYPE_NORMAL, self.__context)        
+        data = meta.get_data_and_size()
+        end = time.time()
+        print "read file from sd took: %.5fs" % (end - start)
+        
+        img = Image(data,ImagePath(folder, filename), PreviewSize.medium)
+        return img.serialize     
     
     def __read_widget(self, widget, settings={}):
         items = widget.count_children()

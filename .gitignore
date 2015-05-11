@@ -5,6 +5,9 @@
 flask
 gphoto2
 env
+cover
+env
+pip
 
 
 # Compiled source #

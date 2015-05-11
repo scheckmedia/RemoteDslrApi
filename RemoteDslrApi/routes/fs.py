@@ -1,4 +1,4 @@
-from flask import Blueprint, request, current_app, Response
+from flask import Blueprint, request, current_app
 import json
 from RemoteDslrApi.error import RemoteDslrApiError
 
@@ -11,9 +11,10 @@ from RemoteDslrApi.error import RemoteDslrApiError
 @apiSuccessExample Success-Response:
     HTTP/1.1 200 OK
 """
-fs_list = Blueprint('fs_list', __name__)
-@fs_list.route('/fs/list', methods=['GET'])
+fs_files_list = Blueprint('fs_list', __name__)
+@fs_files_list.route('/fs/list', methods=['GET'])
 def fs_list():
+    print "inlist"
     camera = current_app.get_camera()
     fs = camera.read_folder('/')
     return current_app.success_response({"fs": fs}), 200

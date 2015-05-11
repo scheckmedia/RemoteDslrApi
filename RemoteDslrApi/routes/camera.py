@@ -25,7 +25,7 @@ def capture():
     
     image = camera.capture(with_image)
     if(with_image):                
-        return current_app.success_response({"base64_jpeg" : image.base64, "path" : image.path}), 200
+        return current_app.success_response(image.serialize), 200
     
     return current_app.success_response({"path" : image.path}), 200
     
