@@ -1,6 +1,5 @@
 from zeroconf import Zeroconf, ServiceInfo
 import socket
-import logging
 import RemoteDslrApi
 
 class AutoAnnounce(object):
