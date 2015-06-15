@@ -1,15 +1,53 @@
-from flask import Flask, jsonify   
+from os import path
+from flask import Flask, jsonify
 from werkzeug.exceptions import default_exceptions
+from RemoteDslrApi import routes
 from RemoteDslrApi.camera import Camera
 from RemoteDslrApi.error import RemoteDslrApiError
+from RemoteDslrApi.announce import AutoAnnounce
+from RemoteDslrApi.settings import Settings
+from flask.blueprints import Blueprint
+import pkgutil
 
 __all__ = ['json_app']
 
 
 class Server(Flask):
-    def __init__(self, import_name):        
+    def __init__(self, import_name):
         Flask.__init__(self, import_name)
+        self.__register_routes()
         self.__camera = Camera()
+        self._configure()
+
+        for code in default_exceptions.iterkeys():
+            self.error_handler_spec[None][code] = RemoteDslrApiError.handle
+
+    def _configure(self):
+        config = Settings().get_config()
+        address = config["server"]["address"]
+        port = int(config["server"]["port"])
+        debug = config["server"]["port"] in ['True', 'true']
+        use_ssl = config["server"]["ssl"] in ['True', 'true']
+        auto_announce = config["general"]["auto_announce"] in ['True', 'true']
+        if auto_announce:
+            AutoAnnounce(port, use_ssl)
+
+
+        options = {
+            'debug': debug,
+            'use_reloader': False,
+            'threaded': True
+        }
+
+        if use_ssl:
+            abs_path = path.dirname(path.abspath(__file__)) + "/../"
+            cert_file = abs_path + config["server"]["ssl_crt"]
+            key_file = abs_path + config["server"]["ssl_key"]
+            ssl_context = (cert_file, key_file)
+            options['ssl_context'] = ssl_context
+
+        self.run(address, port, options)
+        restfu
 
     def get_camera(self):
         return self.__camera
@@ -23,10 +61,15 @@ class Server(Flask):
         if type(param) is dict:
             param["state"] = "fail"
             return jsonify(param)
-    
-    
-def json_app(import_name, **kwargs):    
-    app = Server(import_name, **kwargs)
-    for code in default_exceptions.iterkeys():
-        app.error_handler_spec[None][code] = RemoteDslrApiError.handle
-    return app
+
+    def __register_routes(self):
+        """
+        autoload API routes
+        """
+        package = routes
+        for importer, modname, ispkg in pkgutil.iter_modules(package.__path__):
+            module = importer.find_module(modname).load_module(modname)
+            if not ispkg:
+                for obj in vars(module).values():
+                    if isinstance(obj, Blueprint):
+                        self.register_blueprint(obj, url_prefix='/api')

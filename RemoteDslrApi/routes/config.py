@@ -19,7 +19,7 @@ def list_config():
     return current_app.success_response(camera.get_config()), 200
 
 """
-@api {post} /api/config Value by key
+@api {get} /api/config/get/:key Get Custom Value
 @apiName GetConfigByKey
 @apiGroup Config
 @apiDescription Returns a value of a key or a list of values for a list of keys
@@ -40,8 +40,9 @@ or
 }       
 """
 config_by_value = Blueprint('config_by_value', __name__)
-@config_by_value.route('/config', methods=['POST'])
+@config_by_value.route('/config/<key>', methods=['get'])
 def get_config_by_key():
+    # TODO: commata seperation of "key" for multiple values
     camera = current_app.get_camera()
     data = json.loads(request.data)  
     value = __validate_value(data)  
@@ -125,7 +126,7 @@ def shutter_speed():
     return current_app.success_response({}), 201
 
 """
-@api {put} /api/config/:key Custom Value
+@api {put} /api/config/set/:key Set Custom Value
 @apiName SetKeyValue
 @apiGroup Config
 @apiDescription Updates Camera configuration with a key value pair from listconfig settings
@@ -141,7 +142,7 @@ def shutter_speed():
 }
 """
 config_custom_key_value = Blueprint('config_custom_key_value', __name__)
-@config_custom_key_value.route('/config/<key>', methods=['PUT'])
+@config_custom_key_value.route('/config/set/<key>', methods=['PUT'])
 def key_value(key):    
     camera = current_app.get_camera()
     data = json.loads(request.data)  

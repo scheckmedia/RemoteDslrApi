@@ -12,13 +12,14 @@ from flask import Blueprint, current_app
         "state": "ok"
     }
 """
+from RemoteDslrApi.error import RemoteDslrApiError
 status_page = Blueprint('status', __name__)
 @status_page.route('/status', methods=['GET'])
 def get_status():
     camera = current_app.get_camera()
     message = { "camera" : camera.has_camera}
     if(message["camera"] == False) :
-        message["error"] = camera.get_last_error()
+        message["error"] = RemoteDslrApiError.translate(camera.get_last_error())
     return current_app.success_response(message)
 
 """

@@ -4,12 +4,17 @@ import RemoteDslrApi
 
 class AutoAnnounce(object):
     
-    def __init__(self, port, run=True):
+    def __init__(self, port, ssl=False, run=True):
         try:
             self.__running = True
+            
+            protocol = 'http'
+            if ssl:
+                protocol = 'https'
+                
             self.zeroconf = Zeroconf()
             ip, hostname = self.get_local_ip()                        
-            desc = {'version': RemoteDslrApi.__version__, 'api_url': 'http://' + ip + ':' + str(port) + '/api/', 'url': 'http://' + ip + ':' + str(port)}
+            desc = {'version': RemoteDslrApi.__version__, 'api_url': protocol + '://' + ip + ':' + str(port) + '/api/', 'url': protocol + '://' + ip + ':' + str(port)}
             self.service = ServiceInfo("_http._tcp.local.",
                        "RemoteDslrApi._http._tcp.local.",
                        socket.inet_aton(ip), port, 0, 0,

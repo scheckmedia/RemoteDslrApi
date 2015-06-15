@@ -6,7 +6,7 @@ from RemoteDslrApi.error import RemoteDslrApiError
 @api {GET} /api/fs/list List File System
 @apiName GetFilesystemList
 @apiGroup fs
-@apiDescription
+@apiDescription returns a tree containing camera file system
 
 @apiSuccessExample Success-Response:
     HTTP/1.1 200 OK
@@ -24,7 +24,7 @@ def fs_list():
 @api {post} /api/fs/previews Preview for Files
 @apiName GetFilesystemPreview
 @apiGroup fs
-@apiDescription
+@apiDescription returns the preview images for a list of files
 
 @apiSuccessExample Success-Response:
     HTTP/1.1 200 OK

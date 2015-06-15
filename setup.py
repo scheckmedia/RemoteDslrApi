@@ -29,7 +29,7 @@ config = {
     'download_url': 'Where to download it.',
     'author_email': 'tobias@scheck-media.de',
     'version': '0.1',
-    'requires': ['nose', 'gphoto2', 'flask', 'rawpy', 'imageio', 'zeroconf'],
+    'requires': ['nose', 'gphoto2', 'flask', 'gexiv2', 'pillow','zeroconf'],
     'packages': ['RemoteDslrApi'],
     'tests_require' : ['Mock'],
     'scripts': [],
@@ -38,4 +38,4 @@ config = {
     'cmdclass': {'test': NoseTestCommand}
 }
 
-setup(**config, requires=['gphoto2', 'flask'])
+setup(**config, requires=['gphoto2', 'flask', 'gi'])

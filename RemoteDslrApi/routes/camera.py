@@ -1,7 +1,6 @@
 from flask import Blueprint, request, current_app, Response
 import json
 from RemoteDslrApi.error import RemoteDslrApiError
-import time
 from time import sleep
 
 """
@@ -81,7 +80,7 @@ def stop_live_view():
     return current_app.success_response({}), 200
 
 """
-@api {get} /api/camera/focus/manual Manual focus
+@api {put} /api/camera/focus/manual Manual focus
 @apiName GetFocusManual
 @apiGroup Camera
 @apiDescription Manual focus in live view

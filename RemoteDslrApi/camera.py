@@ -5,7 +5,6 @@ from os import system
 from time import sleep
 from RemoteDslrApi.error import RemoteDslrApiError
 from RemoteDslrApi.image import Image, PreviewSize, ImagePath
-from base64 import b64encode
 import time
 
 class Camera:
@@ -278,8 +277,9 @@ class Camera:
         data = meta.get_data_and_size()
         end = time.time()
         print "read file from sd took: %.5fs" % (end - start)
-        
-        img = Image(data,ImagePath(folder, filename), PreviewSize.medium)
+
+        path = ImagePath(folder, filename)
+        img = Image(data, path, PreviewSize.medium)
         return img.serialize     
     
     def __read_widget(self, widget, settings={}):

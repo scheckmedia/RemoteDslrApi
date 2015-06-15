@@ -22,6 +22,20 @@ class RemoteDslrApiError(Exception):
     def __init__(self, message, code):        
         self.message = message
         self.code = code
+    
+    @staticmethod
+    def translate(ex):
+        message = {}
+        if isinstance(ex, GPhoto2Error):
+            key = str(ex.code)
+            message["message"] = ex.string             
+            if ERROR_MAP.has_key(key):
+                o = ERROR_MAP[key]
+                message["description"] = o["description"]
+                
+            message["code"] = ex.code            
+            
+        return message
         
     @staticmethod
     def handle(ex):
