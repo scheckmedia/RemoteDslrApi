@@ -15,26 +15,24 @@ __all__ = ['json_app']
 class Server(Flask):
     def __init__(self, import_name):
         Flask.__init__(self, import_name)
-        self.__register_routes()
         self.__camera = Camera()
-        self._configure()
+        self.__register_routes()
+        self.__configure()
 
+    def __configure(self):
         for code in default_exceptions.iterkeys():
             self.error_handler_spec[None][code] = RemoteDslrApiError.handle
 
-    def _configure(self):
         config = Settings().get_config()
-        address = config["server"]["address"]
-        port = int(config["server"]["port"])
-        debug = config["server"]["port"] in ['True', 'true']
+        self.address = config["server"]["address"]
+        self.port = int(config["server"]["port"])
+        self.debug = config["server"]["port"] in ['True', 'true']
         use_ssl = config["server"]["ssl"] in ['True', 'true']
         auto_announce = config["general"]["auto_announce"] in ['True', 'true']
         if auto_announce:
-            AutoAnnounce(port, use_ssl)
+            AutoAnnounce(self.port, use_ssl)
 
-
-        options = {
-            'debug': debug,
+        self.options = {
             'use_reloader': False,
             'threaded': True
         }
@@ -44,10 +42,13 @@ class Server(Flask):
             cert_file = abs_path + config["server"]["ssl_crt"]
             key_file = abs_path + config["server"]["ssl_key"]
             ssl_context = (cert_file, key_file)
-            options['ssl_context'] = ssl_context
+            self.options['ssl_context'] = ssl_context
 
-        self.run(address, port, options)
-        restfu
+    def start(self):
+        self.run(self.address, self.port, self.debug, **self.options)
+
+    def set_camera(self, camera):
+        self.__camera = camera
 
     def get_camera(self):
         return self.__camera

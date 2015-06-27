@@ -26,6 +26,7 @@ class Camera:
             self.__camera.init(self.__context)
             self.__has_camera = True
             self.set_capture_target(1)
+            print "initialize camera finished"
         
         except Exception as ex:
             self.__has_camera = False
