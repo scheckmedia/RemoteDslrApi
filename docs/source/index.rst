@@ -9,9 +9,9 @@ Welcome to RemoteDslrApi's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
 
-.. automodule:: RemoteDslrApi.camera
+.. automodule:: RemoteDslrApi
 .. autoclass:: Camera
     :members:
 
@@ -29,6 +29,10 @@ Contents:
 
 .. automodule:: RemoteDslrApi.server
 .. autoclass:: Server
+    :members:
+
+.. automodule:: RemoteDslrApi.announce
+.. autoclass:: AutoAnnounce
     :members:
 
 

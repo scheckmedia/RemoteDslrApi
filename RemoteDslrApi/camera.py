@@ -8,9 +8,9 @@ from RemoteDslrApi.image import Image, PreviewSize, ImagePath
 import time
 
 class Camera:
-    '''    
+    """
     Responsible for operations with a Camera    
-    '''
+    """
     def __init__(self):
         try:
             print "initialize camera..."       
@@ -34,9 +34,9 @@ class Camera:
     
     @property    
     def has_camera(self):        
-        '''
+        """
         determine a camera is connected and valid
-        '''
+        """
         return self.__has_camera 
     
     @property
@@ -45,13 +45,13 @@ class Camera:
     
     @property
     def preview_running(self):        
-        '''
+        """
         is camera live view active
-        '''
+        """
         return self.__preview_running    
     
     def capture(self, return_image=True):
-        '''
+        """
         takes a picture and returns this, if needed
         
         Parameters
@@ -60,7 +60,7 @@ class Camera:
         return_image : bool
             if true image object will be returned (see :class:`Image`)        
                 
-        '''
+        """
         if not self.__has_camera:
             raise self.__last_error
                                 
