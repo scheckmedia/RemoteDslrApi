@@ -21,21 +21,21 @@ class NoseTestCommand(TestCommand):
         import nose
         nose.run_exit(argv=['nosetests'])
 
-config = {
-    'description': 'control your DSLR Camera remote over HTTP',
-    'long_description' : read('README.md'),
-    'author': 'Tobias Scheck',
-    'url': 'http://www.scheck-media.de',
-    'download_url': 'Where to download it.',
-    'author_email': 'tobias@scheck-media.de',
-    'version': '0.1',
-    'requires': ['nose', 'gphoto2', 'flask', 'gexiv2', 'pillow','zeroconf', 'gi'],
-    'packages': ['RemoteDslrApi'],
-    'tests_require' : ['Mock'],
-    'scripts': [],
-    'name': 'RemoteDslrApi',
-    'setup_requires': ['nose>=1.3'],
-    'cmdclass': {'test': NoseTestCommand}
-}
+config = dict()
 
-setup(**config)
+setup(
+    description='control your DSLR Camera remote over HTTP',
+    long_description=read('README.md'),
+    author='Tobias Scheck',
+    url='http://www.scheck-media.de',
+    download_url='Where to download it.',
+    author_email='tobias@scheck-media.de',
+    version='0.1',
+    requires=['nose', 'gphoto2', 'flask', 'gexiv2', 'pillow', 'zeroconf', 'gi'],
+    packages=['RemoteDslrApi'],
+    tests_require=['Mock'],
+    scripts=[],
+    name='RemoteDslrApi',
+    setup_requires=['nose>=1.3'],
+    cmdclass={'test': NoseTestCommand}
+)
