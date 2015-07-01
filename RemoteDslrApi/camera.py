@@ -78,8 +78,8 @@ class Camera:
             
             if return_image:
                 camera_file = self.__camera.file_get(path.folder, path.name, gp.GP_FILE_TYPE_NORMAL, self.__context)
-                data = camera_file.get_data_and_size()                
-            
+                data = memoryview(camera_file.get_data_and_size()).tobytes()
+
             return Image(data, path)  
         except Exception as ex:            
             raise ex
@@ -121,10 +121,9 @@ class Camera:
             return False
         
         try:            
-            preview_file = gp.CameraFile()
-            self.__camera.capture_preview(preview_file, self.__context)
+            preview_file =  self.__camera.capture_preview(self.__context)
             preview = preview_file.get_data_and_size()
-            return preview
+            return memoryview(preview).tobytes()
         except Exception as ex:            
             raise ex
     

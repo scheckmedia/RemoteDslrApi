@@ -1,2 +1,2 @@
 include RemoteDslrApi/routes/*
-include config.ini
+include RemoteDslrApi/config.ini
