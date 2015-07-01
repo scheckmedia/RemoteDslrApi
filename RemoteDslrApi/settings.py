@@ -1,10 +1,13 @@
-from os import getcwd, sep, chdir, path
+from os import path
 from ConfigParser import ConfigParser
 
 
 class Settings:
     def __init__(self):
         self.__config = {
+            "general": {
+                "auto_announce": True
+            },
             "server": {
                 "address": "127.0.0.1",
                 "port": 6666,

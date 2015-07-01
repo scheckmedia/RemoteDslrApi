@@ -21,8 +21,6 @@ class NoseTestCommand(TestCommand):
         import nose
         nose.run_exit(argv=['nosetests'])
 
-config = dict()
-
 setup(
     description='control your DSLR Camera remote over HTTP',
     long_description=read('README.md'),
@@ -32,7 +30,7 @@ setup(
     download_url='Where to download it.',
     author_email='tobias@scheck-media.de',
     version='0.1',
-    install_requires=['nose', 'gphoto2', 'flask', 'pillow', 'zeroconf', 'gi'],
+    install_requires=['nose', 'gphoto2', 'flask', 'pillow', 'zeroconf'],
     packages=['RemoteDslrApi'],
     tests_require=['Mock'],
     scripts=[],
