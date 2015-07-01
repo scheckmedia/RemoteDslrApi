@@ -27,7 +27,7 @@ class Settings:
         self.__config.update(values)
     
     def __parse_config(self):
-        abs_path = path.dirname(path.abspath(__file__)) + "/../"
+        abs_path = path.dirname(path.abspath(__file__)) + "/"
         config_file = "%sconfig.ini" % abs_path        
         parser = ConfigParser()
         parser.read(config_file)
