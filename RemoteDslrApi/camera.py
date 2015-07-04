@@ -5,7 +5,7 @@ from os import system
 from time import sleep
 from RemoteDslrApi.error import RemoteDslrApiError
 from RemoteDslrApi.image import Image, PreviewSize, ImagePath
-import time
+import logging
 
 class Camera:
     """
@@ -13,7 +13,9 @@ class Camera:
     """
     def __init__(self):
         try:
-            print "initialize camera..."       
+            print "initialize camera..."
+            logging.basicConfig(format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
+            gp.use_python_logging()
             # kill ptpcamera on osx which blocks a communication with the camera                 
             if platform == "darwin":
                 system('killall PTPCamera 2> /dev/null')
@@ -81,7 +83,7 @@ class Camera:
                 data = memoryview(camera_file.get_data_and_size()).tobytes()
 
             return Image(data, path)  
-        except Exception as ex:            
+        except Exception as ex:
             raise ex
         finally:
             self.__is_busy = False    
@@ -196,7 +198,7 @@ class Camera:
     def get_config_value(self, key):
         if not self.__has_camera:
             raise self.__last_error
-        
+        print("is bussy %r" % self.__is_busy)
         if type(key) is list:
             settings = {}
             for k in key:
@@ -230,14 +232,14 @@ class Camera:
 
         self.__check_busy()
         self.__is_busy = True
+        fs = {}
         try:
-            fs = {}
             self.__read_folder("/", fs)
-            return fs
         except Exception as ex:
             raise ex
         finally:
             self.__is_busy = False
+        return fs
 
     def __read_folder(self, folder, node={}, recursive=True):
         folders = self.__camera.folder_list_folders(folder, self.__context)        
@@ -249,39 +251,65 @@ class Camera:
                 node[name] = {}                
                 
                 if recursive:
-                    self.__read_folder(name, node[name])                
-                    
-        
+                    self.__read_folder(name, node[name])
+
         if files.count() > 0:
             filelist = []
             for index in range(0, files.count()):                
                 name = files.get_name(index)                                
                 item = { 'file': name, 'path': folder}                
-                filelist.append(item)   
-            node["files"] = filelist            
-    
+                filelist.append(item)
+            node["files"] = filelist
+
+    def read_file(self, f):
+        if not self.__has_camera:
+            raise self.__last_error
+
+        self.__check_busy()
+        self.__is_busy = True
+        try:
+            if type(f) is dict and f.has_key('file') and f.has_key('path'):
+                image_path = ImagePath(f['path'], f['file'])
+                return self.__read_file(image_path.folder, image_path.name, PreviewSize.big)
+        except Exception as ex:
+            raise ex
+        finally:
+            self.__is_busy = False
+
     def preview_for_files(self, files):
-        previews = []        
-        if type(files) is list:
-            for f in files:
-                if type(f) is dict and f.has_key('file') and f.has_key('path'):
-                    image = self.__read_file_preview(f['path'], f['file'])
-                    d = image.copy()
-                    d.update(f)
-                    previews.append(d)
+        if not self.__has_camera:
+            raise self.__last_error
+
+        self.__check_busy()
+        self.__is_busy = True
+        previews = []
+
+        try:
+            if type(files) is list:
+                for f in files:
+                    if type(f) is dict and f.has_key('file') and f.has_key('path'):
+                        image = self.__read_file(f['path'], f['file'], PreviewSize.small)
+                        d = image.copy()
+                        d.update(f)
+                        previews.append(d)
+        except Exception as ex:
+            raise ex
+        finally:
+            self.__is_busy = False
+
         return previews
     
-    def __read_file_preview(self, folder, filename):
-        start = time.time()
-        meta = self.__camera.file_get(str(folder), str(filename), gp.GP_FILE_TYPE_NORMAL, self.__context)        
-        data = meta.get_data_and_size()
-        end = time.time()
-        print "read file from sd took: %.5fs" % (end - start)
+    def __read_file(self, folder, filename, size):
+        try:
+            meta = self.__camera.file_get(str(folder), str(filename), gp.GP_FILE_TYPE_NORMAL, self.__context)
+            data = memoryview(meta.get_data_and_size()).tobytes()
+            path = ImagePath(folder, filename)
+            img = Image(data, path, size)
+            return img.serialize
 
-        path = ImagePath(folder, filename)
-        img = Image(data, path, PreviewSize.medium)
-        return img.serialize     
-    
+        except Exception as ex:
+            print(ex)
+
     def __read_widget(self, widget, settings={}):
         items = widget.count_children()
         if items > 0:

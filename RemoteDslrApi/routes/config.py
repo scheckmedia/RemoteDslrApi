@@ -42,7 +42,6 @@ or
 config_by_value = Blueprint('config_by_value', __name__)
 @config_by_value.route('/config/get/<key>', methods=['get'])
 def get_config_by_key(key):
-    # TODO: commata seperation of "key" for multiple values
     camera = current_app.get_camera()
     data = str(key).split(",")
     return current_app.success_response(camera.get_config_value(data)), 200

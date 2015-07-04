@@ -14,7 +14,6 @@ from RemoteDslrApi.error import RemoteDslrApiError
 fs_files_list = Blueprint('fs_list', __name__)
 @fs_files_list.route('/fs/list', methods=['GET'])
 def fs_list():
-    print "inlist"
     camera = current_app.get_camera()
     fs = camera.read_folder('/')
     return current_app.success_response({"fs": fs}), 200
@@ -37,6 +36,24 @@ def fs_previews():
     value = __validate_value(data) 
     previews = camera.preview_for_files(value)
     return current_app.success_response({"previews": previews}), 200
+
+"""
+@api {post} /api/fs/file Get File
+@apiName GetFilesystemFile
+@apiGroup fs
+@apiDescription returns for an image in full resolution and with exif information
+
+@apiSuccessExample Success-Response:
+    HTTP/1.1 200 OK
+"""
+fs_file = Blueprint('fs_file', __name__)
+@fs_file.route('/fs/file', methods=['POST'])
+def fs_previews():
+    camera = current_app.get_camera()
+    data = json.loads(request.data)
+    value = __validate_value(data)
+    previews = camera.read_file(value)
+    return current_app.success_response({"file": previews}), 200
 
 
 

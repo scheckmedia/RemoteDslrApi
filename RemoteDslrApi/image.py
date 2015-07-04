@@ -44,7 +44,7 @@ class Image(JSONEncoder):
     @property
     def serialize(self):        
         return {
-            "preview" : self.base64,
+            "image" : self.base64,
             "metadata" : self.exif
         }
     
