@@ -14,6 +14,9 @@ __all__ = ['json_app']
 
 
 class Server(Flask):
+    """
+     A customized HTTP-Server based on Flask
+    """
     def __init__(self, import_name):
         Flask.__init__(self, import_name)
         self.__camera = Camera()
@@ -24,7 +27,7 @@ class Server(Flask):
         for code in default_exceptions.iterkeys():
             self.error_handler_spec[None][code] = RemoteDslrApiError.handle
 
-        config = Settings().get_config()
+        config = Settings().get_config
         self.address = config["server"]["address"]
         self.port = int(config["server"]["port"])
         self.debug = config["server"]["port"] in ['True', 'true']
@@ -46,9 +49,18 @@ class Server(Flask):
             self.options['ssl_context'] = ssl_context
 
     def start(self):
+        """
+        start http services
+        """
         self.run(self.address, self.port, self.debug, **self.options)
 
     def set_camera(self, camera):
+        """
+        set current camera instance
+
+        :type camera: RemoteDslrApi.Camera
+        :param camera: camera instance
+        """
         self.__camera = camera
 
     def get_camera(self):
@@ -78,9 +90,12 @@ class Server(Flask):
 
     @staticmethod
     def auth(f):
+        """
+        function decorator to authticate with http basic auth
+        """
         @wraps(f)
         def wrapper(*args, **kwargs):
-            config = Settings().get_config()
+            config = Settings().get_config
             enabled = config["security"]["protected"] in ['True', 'true']
             username = config["security"]["username"]
             password = config["security"]["password"]

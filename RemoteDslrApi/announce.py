@@ -10,9 +10,13 @@ class AutoAnnounce(object):
         Announces network settings via mdns
 
         :type self: AutoAnnounce
+        :param self: AutoAnnounce
         :type port: int
+        :param port: port of service to announce
         :type ssl: bool
+        :param ssl: flag that determine this service uses ssl
         :type run: bool
+        :param run: flag that determine whether the announce service starts automatically
         """
         try:
             self.__running = True
@@ -60,7 +64,8 @@ class AutoAnnounce(object):
         """
         returns current ip and hostname
 
-        :rtype : (string, string)
+        :returns: a tuple with IP and Hostname
+        :rtype: (string, string)
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('8.8.8.8', 53))

@@ -38,17 +38,28 @@ class Camera:
     def has_camera(self):        
         """
         determine a camera is connected and valid
+
+        :returns: a flag to identify a camera was found
+        :rtype: bool
         """
         return self.__has_camera 
     
     @property
     def is_busy(self):
+        """
+        flag to determine a camera is busy
+        :return: a flag to check whether camera is in use
+        :rtype: bool
+        """
         return self.__is_busy
     
     @property
     def preview_running(self):        
         """
-        is camera live view active
+        flag to determine a camera is live view mode
+
+        :returns: state of live view mode
+        :rtype: bool
         """
         return self.__preview_running    
     
@@ -189,7 +200,7 @@ class Camera:
         self.__check_busy()
         self.__is_busy = True
         
-        root = self.__camera.get_config(self.__context)
+        root = self.__camera.get_config
         settings = {}
         self.__read_widget(root, settings)
         self.__is_busy = False 
@@ -343,7 +354,7 @@ class Camera:
         self.__is_busy = True
         
         try:            
-            root = self.__camera.get_config(self.__context)
+            root = self.__camera.get_config
             child = root.get_child_by_name(key)
             settings = {}
             self.__get_widget_value(child, settings)
@@ -355,7 +366,7 @@ class Camera:
             
     def __set_widget_value(self, key, value, cast_as_string=True):                
         try:            
-            root = self.__camera.get_config(self.__context)
+            root = self.__camera.get_config
             child = root.get_child_by_name(key)
             if cast_as_string:
                 value = str(value)

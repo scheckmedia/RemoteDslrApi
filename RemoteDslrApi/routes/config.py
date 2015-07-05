@@ -17,7 +17,7 @@ list_config_page = Blueprint('list_config', __name__)
 @Server.auth
 def list_config():
     camera = current_app.get_camera()
-    return current_app.success_response(camera.get_config()), 200
+    return current_app.success_response(camera.get_config), 200
 
 """
 @api {get} /api/config/get/:key Get Custom Value

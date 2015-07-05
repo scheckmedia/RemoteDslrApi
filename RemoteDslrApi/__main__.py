@@ -1,4 +1,3 @@
-from RemoteDslrApi import Camera
 from RemoteDslrApi.server import Server
 
 if __name__ == "__main__":

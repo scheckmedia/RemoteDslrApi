@@ -20,14 +20,19 @@ class ImagePath():
 
 
 class Image(JSONEncoder):
+    """
+    Representation of an Image from a camera
+    """
     def __init__(self, data=None, path="", preview_size=PreviewSize.big):    
         """
+        Initializes this instance of an image
 
-        :param data:
-        :param path:
-        :type RemoteDslrApi.image.ImagePath
+        :param data: byte data which representing an image
+        :type data: str
+        :param path: path of an image
+        :type path: RemoteDslrApi.image.ImagePath
         :param preview_size:
-        :type RemoteDslrApi.image.PreviewSize
+        :type preview_size: RemoteDslrApi.image.PreviewSize
         """
         self.__path = path.folder + '/' + path.name
         if data is not None:            
@@ -35,14 +40,31 @@ class Image(JSONEncoder):
     
     @property
     def base64(self):
+        """
+        retruns an image as base64 encoded string
+        :return: base64 encoded string
+        :rtype: str
+        """
         return base64.b64encode(self.__data)
     
     @property
     def path(self):
+        """
+        returns the path of a camera for an image
+
+        :return: image path
+        :rtype: str
+        """
         return self.__path
     
     @property
-    def serialize(self):        
+    def serialize(self):
+        """
+        serializes an image to an dictionary
+
+        :return: serialized image
+        :rtype: dict
+        """
         return {
             "image" : self.base64,
             "metadata" : self.exif

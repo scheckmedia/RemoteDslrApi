@@ -3,6 +3,9 @@ from ConfigParser import ConfigParser
 
 
 class Settings:
+    """
+    Responsible for parsing configuration values
+    """
     def __init__(self):
         self.__config = {
             "general": {
@@ -25,12 +28,16 @@ class Settings:
                 
         self.__config.update(self.__parse_config())
     
+    @property
     def get_config(self):
+        """
+        returns the current configuration
+
+        :return: configuration
+        :rtype: dict
+        """
         return self.__config
-    
-    def add_config(self, values):
-        self.__config.update(values)
-    
+
     def __parse_config(self):
         abs_path = path.dirname(path.abspath(__file__)) + "/"
         config_file = "%sconfig.ini" % abs_path        
