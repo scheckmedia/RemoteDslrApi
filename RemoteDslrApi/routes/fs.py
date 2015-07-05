@@ -1,6 +1,7 @@
 from flask import Blueprint, request, current_app
 import json
 from RemoteDslrApi.error import RemoteDslrApiError
+from RemoteDslrApi.server import Server
 
 """
 @api {GET} /api/fs/list List File System
@@ -13,6 +14,7 @@ from RemoteDslrApi.error import RemoteDslrApiError
 """
 fs_files_list = Blueprint('fs_list', __name__)
 @fs_files_list.route('/fs/list', methods=['GET'])
+@Server.auth
 def fs_list():
     camera = current_app.get_camera()
     fs = camera.read_folder('/')
@@ -30,6 +32,7 @@ def fs_list():
 """
 fs_file_preview = Blueprint('fs_previews', __name__)
 @fs_file_preview.route('/fs/previews', methods=['POST'])
+@Server.auth
 def fs_previews():
     camera = current_app.get_camera()
     data = json.loads(request.data)  
@@ -48,6 +51,7 @@ def fs_previews():
 """
 fs_file = Blueprint('fs_file', __name__)
 @fs_file.route('/fs/file', methods=['POST'])
+@Server.auth
 def fs_previews():
     camera = current_app.get_camera()
     data = json.loads(request.data)

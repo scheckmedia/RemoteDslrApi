@@ -2,6 +2,7 @@ from flask import Blueprint, request, current_app, Response
 import json
 from RemoteDslrApi.error import RemoteDslrApiError
 from time import sleep
+from RemoteDslrApi.server import Server
 
 """
 @api {post} /api/camera/capture Capture
@@ -14,6 +15,7 @@ from time import sleep
 """
 camera_capture = Blueprint('capture', __name__)
 @camera_capture.route('/camera/capture', methods=['POST'])
+@Server.auth
 def capture():     
     camera = current_app.get_camera()
     data = json.loads(request.data)  
@@ -40,6 +42,7 @@ def capture():
 """
 camera_start_live_view = Blueprint('camera_live_view_start', __name__)
 @camera_start_live_view.route('/camera/liveview/start', methods=['GET'])
+@Server.auth
 def start_live_view():            
     camera = current_app.get_camera()
     
@@ -74,6 +77,7 @@ def start_live_view():
 
 camera_stop_live_view = Blueprint('camera_live_view_stop', __name__)
 @camera_stop_live_view.route('/camera/liveview/stop', methods=['PUT'])
+@Server.auth
 def stop_live_view():
     camera = current_app.get_camera()
     camera.stop_preview()    
@@ -91,6 +95,7 @@ def stop_live_view():
 
 camera_focus_manual = Blueprint('camera_focus_manual', __name__)
 @camera_focus_manual.route('/camera/focus/manual', methods=['PUT'])
+@Server.auth
 def focus_manual():
     camera = current_app.get_camera()
     data = json.loads(request.data)

@@ -15,7 +15,12 @@ class Settings:
                 "ssl": False,
                 "ssl_key": "ssl/server.key",
                 "ssl_crt": "ssl/server.crt"
-            }         
+            },
+            "security": {
+                "protected": False,
+                "username": "admin",
+                "password": "123456"
+            }
         }
                 
         self.__config.update(self.__parse_config())

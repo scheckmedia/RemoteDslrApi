@@ -1,4 +1,7 @@
 from flask import Blueprint, current_app
+from RemoteDslrApi.error import RemoteDslrApiError
+from RemoteDslrApi.server import Server
+
 """
 @api {get} /api/status Status
 @apiName GetStatus
@@ -12,9 +15,9 @@ from flask import Blueprint, current_app
         "state": "ok"
     }
 """
-from RemoteDslrApi.error import RemoteDslrApiError
 status_page = Blueprint('status', __name__)
 @status_page.route('/status', methods=['GET'])
+@Server.auth
 def get_status():
     camera = current_app.get_camera()
     message = { "camera" : camera.has_camera}
@@ -43,6 +46,7 @@ def get_status():
 """
 status_summary = Blueprint('status_summary', __name__)
 @status_summary.route('/status/summary', methods=['GET'])
+@Server.auth
 def get_summary():
     camera = current_app.get_camera()
     return current_app.success_response({"summary" : camera.get_summary()}), 200    

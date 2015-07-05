@@ -1,5 +1,5 @@
 from os import path
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, Response
 from werkzeug.exceptions import default_exceptions
 from RemoteDslrApi import routes
 from RemoteDslrApi.camera import Camera
@@ -7,6 +7,7 @@ from RemoteDslrApi.error import RemoteDslrApiError
 from RemoteDslrApi.announce import AutoAnnounce
 from RemoteDslrApi.settings import Settings
 from flask.blueprints import Blueprint
+from functools import wraps
 import pkgutil
 
 __all__ = ['json_app']
@@ -74,3 +75,21 @@ class Server(Flask):
                 for obj in vars(module).values():
                     if isinstance(obj, Blueprint):
                         self.register_blueprint(obj, url_prefix='/api')
+
+    @staticmethod
+    def auth(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            config = Settings().get_config()
+            enabled = config["security"]["protected"] in ['True', 'true']
+            username = config["security"]["username"]
+            password = config["security"]["password"]
+
+            auth = request.authorization
+
+            if enabled is True and not (username == auth.username and password == auth.password):
+                raise RemoteDslrApiError("invalid login", 401)
+
+            return f(*args, **kwargs)
+
+        return wrapper

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, current_app
 import json
 from RemoteDslrApi.error import RemoteDslrApiError
-
+from RemoteDslrApi.server import Server
 
 """
 @api {get} /api/config/list List
@@ -14,7 +14,8 @@ from RemoteDslrApi.error import RemoteDslrApiError
 """
 list_config_page = Blueprint('list_config', __name__)
 @list_config_page.route('/config/list', methods=['GET'])
-def list_config():     
+@Server.auth
+def list_config():
     camera = current_app.get_camera()
     return current_app.success_response(camera.get_config()), 200
 
@@ -41,6 +42,7 @@ or
 """
 config_by_value = Blueprint('config_by_value', __name__)
 @config_by_value.route('/config/get/<key>', methods=['get'])
+@Server.auth
 def get_config_by_key(key):
     camera = current_app.get_camera()
     data = str(key).split(",")
@@ -65,6 +67,7 @@ def get_config_by_key(key):
 """
 config_aperture_page = Blueprint('config_aperture', __name__)
 @config_aperture_page.route('/config/aperture/', methods=['PUT'])
+@Server.auth
 def aperture():    
     camera = current_app.get_camera()
     data = json.loads(request.data)  
@@ -89,6 +92,7 @@ def aperture():
 """
 config_iso_page = Blueprint('config_iso', __name__)
 @config_iso_page.route('/config/iso/', methods=['PUT'])
+@Server.auth
 def iso():    
     camera = current_app.get_camera()
     data = json.loads(request.data)  
@@ -114,6 +118,7 @@ def iso():
 """
 config_shutter_speed_page = Blueprint('config_shutter_speed', __name__)
 @config_shutter_speed_page.route('/config/shutterspeed/', methods=['PUT'])
+@Server.auth
 def shutter_speed():    
     camera = current_app.get_camera()
     data = json.loads(request.data)  
@@ -141,6 +146,7 @@ def shutter_speed():
 """
 config_custom_key_value = Blueprint('config_custom_key_value', __name__)
 @config_custom_key_value.route('/config/set/<key>', methods=['PUT'])
+@Server.auth
 def key_value(key):    
     camera = current_app.get_camera()
     data = json.loads(request.data)  
