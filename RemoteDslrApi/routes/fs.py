@@ -44,7 +44,7 @@ def fs_previews():
 @api {post} /api/fs/file Get File
 @apiName GetFilesystemFile
 @apiGroup fs
-@apiDescription returns for an image in full resolution and with exif information
+@apiDescription returns an image in full resolution with exif information
 
 @apiSuccessExample Success-Response:
     HTTP/1.1 200 OK
