@@ -381,6 +381,5 @@ class Camera:
             raise RemoteDslrApiError("Camera is busy", 503)
     
     def __exit__(self):
-        print "exit"
         if self.__camera is not None and self.__context is not None:
             self.__camera.exit(self.__context)

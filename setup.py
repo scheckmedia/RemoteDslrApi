@@ -22,7 +22,7 @@ class NoseTestCommand(TestCommand):
         nose.run_exit(argv=['nosetests'])
 
 setup(
-    description='control your DSLR Camera remote over HTTP',
+    description='control your DSLR Camera over HTTP',
     long_description=read('README.md'),
     include_package_data=True,
     author='Tobias Scheck',

@@ -54,6 +54,9 @@ class Server(Flask):
         """
         self.run(self.address, self.port, self.debug, **self.options)
 
+    def stop(self):
+        self.__camera.__exit__()
+
     def set_camera(self, camera):
         """
         set current camera instance
