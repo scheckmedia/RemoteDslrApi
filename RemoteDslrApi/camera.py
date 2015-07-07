@@ -164,6 +164,20 @@ class Camera:
         finally:
             self.__is_busy = False
 
+    def auto_focus(self):
+        if not self.__has_camera:
+            raise self.__last_error
+
+        self.__check_busy()
+        self.__is_busy = True
+
+        try:
+            self.__set_widget_value("autofocusdrive", 1)
+        except Exception as ex:
+            raise ex
+        finally:
+            self.__is_busy = False
+
     def set_capture_target(self, index):
         if not self.__has_camera:
             raise self.__last_error

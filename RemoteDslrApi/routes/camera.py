@@ -109,3 +109,28 @@ def __validate_value(data):
         raise RemoteDslrApiError("missing parameter", 400)
     
     return data["value"]
+
+"""
+@api {put} /api/camera/focus/auto Autofocus
+@apiName GetFocusAuto
+@apiGroup Camera
+@apiDescription Responsible for focus adjustment
+
+@apiSuccessExample Success-Response:
+    HTTP/1.1 200 OK
+"""
+
+camera_focus_autofocus = Blueprint('camera_autofocus', __name__)
+@camera_focus_autofocus.route('/camera/focus/auto', methods=['PUT'])
+@Server.auth
+def focus_manual():
+    camera = current_app.get_camera()
+    camera.auto_focus()
+    return current_app.success_response({}), 200
+
+
+def __validate_value(data):
+    if(('value' in data) == False):
+        raise RemoteDslrApiError("missing parameter", 400)
+
+    return data["value"]

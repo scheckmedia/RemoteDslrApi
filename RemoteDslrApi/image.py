@@ -34,10 +34,12 @@ class Image(JSONEncoder):
         :param preview_size:
         :type preview_size: RemoteDslrApi.image.PreviewSize
         """
+
+        # todo: check for jpeg or raw
         self.__path = path.folder + '/' + path.name
-        if data is not None:            
-            self.__to_jpeg(preview_size, data)            
-    
+        if data is not None:
+            self.__to_jpeg(preview_size, data)
+
     @property
     def base64(self):
         """
