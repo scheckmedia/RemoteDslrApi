@@ -6,7 +6,7 @@ from RemoteDslrApi.server import Server
 """
 @api {GET} /api/fs/list List File System
 @apiName GetFilesystemList
-@apiGroup fs
+@apiGroup File system
 @apiDescription returns a tree containing camera file system
 
 @apiSuccessExample Success-Response:
@@ -24,7 +24,7 @@ def fs_list():
 """
 @api {post} /api/fs/previews Preview for Files
 @apiName GetFilesystemPreview
-@apiGroup fs
+@apiGroup File system
 @apiDescription returns the preview images for a list of files
 
 @apiSuccessExample Success-Response:
@@ -43,7 +43,7 @@ def fs_previews():
 """
 @api {post} /api/fs/file Get File
 @apiName GetFilesystemFile
-@apiGroup fs
+@apiGroup File system
 @apiDescription returns an image in full resolution with exif information
 
 @apiSuccessExample Success-Response:

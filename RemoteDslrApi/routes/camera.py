@@ -128,7 +128,6 @@ def focus_manual():
     camera.auto_focus()
     return current_app.success_response({}), 200
 
-
 def __validate_value(data):
     if(('value' in data) == False):
         raise RemoteDslrApiError("missing parameter", 400)

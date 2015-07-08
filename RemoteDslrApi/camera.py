@@ -172,7 +172,7 @@ class Camera:
         self.__is_busy = True
 
         try:
-            self.__set_widget_value("autofocusdrive", 1)
+            self.__set_widget_value("autofocusdrive", 1, False)
         except Exception as ex:
             raise ex
         finally:

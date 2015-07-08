@@ -1,3 +1,4 @@
+from distutils.spawn import find_executable
 import os
 from setuptools.command.test import test as TestCommand
 
@@ -21,6 +22,14 @@ class NoseTestCommand(TestCommand):
         import nose
         nose.run_exit(argv=['nosetests'])
 
+class ApiDocCommand(TestCommand):
+    def run(self):
+        if find_executable('apidoc') is not None:
+            os.system("apidoc -i RemoteDslrApi/ -o docs/api/ --verbose")
+            print("api documentation generated in docs/api/")
+        else:
+            print("apidoc is not installed, please run `npm install apidoc -g`")
+
 setup(
     description='control your DSLR Camera over HTTP',
     long_description=read('README.md'),
@@ -36,5 +45,5 @@ setup(
     scripts=[],
     name='RemoteDslrApi',
     setup_requires=['nose>=1.3'],
-    cmdclass={'test': NoseTestCommand}
+    cmdclass={'test': NoseTestCommand, 'apidoc': ApiDocCommand }
 )
