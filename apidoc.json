@@ -1,7 +1,6 @@
 {
+  "name": "RemoteDslrApi",
   "version": "0.1.0",
-  "url" : "http://device_ip",
-  "header": {
-    "filename": "README.md"
-  }
+  "description": "A REST API to communicate over HTTP with your DSLR",
+  "url" : "http://device_ip"
 }
